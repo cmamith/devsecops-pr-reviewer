@@ -1,0 +1,57 @@
+diff --git a/infrastructure/main.tf b/infrastructure/main.tf
+index 8e3c88a..d2a3449 100644
+--- a/infrastructure/main.tf
++++ b/infrastructure/main.tf
+@@ -10,6 +10,14 @@ resource "aws_security_group" "web_sg" {
+   ingress {
+     from_port   = 80
+     to_port     = 80
+     protocol    = "tcp"
+     cidr_blocks = ["0.0.0.0/0"]
+   }
++
++  ingress {
++    from_port   = 22
++    to_port     = 22
++    protocol    = "tcp"
++    cidr_blocks = ["0.0.0.0/0"]
++  }
+ }
+ 
+diff --git a/kubernetes/deployment.yaml b/kubernetes/deployment.yaml
+index 3b4f62d..8d2b99a 100644
+--- a/kubernetes/deployment.yaml
++++ b/kubernetes/deployment.yaml
+@@ -15,7 +15,6 @@ spec:
+       containers:
+       - name: my-app
+         image: my-app:latest
+         ports:
+         - containerPort: 8080
+-        resources:
+-          limits:
+-            memory: "128Mi"
+-            cpu: "500m"
+diff --git a/infrastructure/iam.tf b/infrastructure/iam.tf
+new file mode 100644
+index 0000000..c78a9d1
+--- /dev/null
++++ b/infrastructure/iam.tf
+@@ -0,0 +1,15 @@
++resource "aws_iam_policy" "developer_policy" {
++  name        = "developer_full_access"
++  description = "A policy that allows all actions"
++
++  policy = jsonencode({
++    Version = "2012-10-17"
++    Statement = [
++      {
++        Action   = [
++          "*"
++        ]
++        Effect   = "Allow"
++        Resource = "*"
++      },
++    ]
++  })
++}
